@@ -77,12 +77,12 @@ int main(int argc, char *argv[])
     size_t test_number = 0, base_number = 0;
     size_t test_gt_d = 0, vecdim = 0;
 
-    std::string data_path = "/anndata/"; 
+    std::string data_path = "./anndata/"; 
     auto test_query = LoadData<float>(data_path + "DEEP100K.query.fbin", test_number, vecdim);
     auto test_gt = LoadData<int>(data_path + "DEEP100K.gt.query.100k.top100.bin", test_number, test_gt_d);
     auto base = LoadData<float>(data_path + "DEEP100K.base.100k.fbin", base_number, vecdim);
     
-    test_number = 2000;
+    test_number = 200;
     const size_t k = 10;
     const int efSearch = 150; 
 
