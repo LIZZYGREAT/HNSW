@@ -39,7 +39,7 @@ public:
         // 而不是++操作,使得始终可以保证一个节点在一个query内只被访问一次。
     }
 
-    inline bool isVisited(size_t internal_id) const {  //检查该节点是否被访问过
+    inline bool isVisited(size_t node_id) const {  //检查该节点是否被访问过
         return visited_array[node_id] == current_mark;
     }
 };
