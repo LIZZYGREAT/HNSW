@@ -35,7 +35,8 @@ public:
     }
 
     inline void markVisited(size_t node_id) {   //标记这次被访问到的节点id
-        visited_array[node_id] = current_mark;  //注意此处为直接将 current_mark赋值给visited_array[node_id]
+        visited_array[node_id] = current_mark;  
+        //注意此处为直接将 current_mark赋值给visited_array[node_id]
         // 而不是++操作,使得始终可以保证一个节点在一个query内只被访问一次。
     }
 
