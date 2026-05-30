@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <random>
+#include <algorithm.h>
 #include "distance.h"
 #include "visited_list.h"
 
