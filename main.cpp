@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     std::cout << "average latency (us): " << avg_latency << "\n";
     
     std::string time_str = getCurrentTimeStr();
-    std::string filename = "files/result_" + time_str + ".txt";
+    std::string filename = "files/HNSW_2D_vector" + time_str + ".txt";
     
     std::ofstream outfile(filename);
     if (outfile.is_open()) {
