@@ -5,7 +5,7 @@ project(FlatScan_Baseline CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 2. 开启 -O2 编译优化（串行暴力搜索非常依赖 O2 优化的加速）
+# 2. 开启 -O2 编译优化
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 # 3. 自动检测并创建 files 目录（防止运行生成结果时因为找不到文件夹而报错）

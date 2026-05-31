@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
 
     std::cerr << "Start testing FlatScan brute-force search (Pure Serial Mode)..." << std::endl;
     
-    // 纯单线程串行循环测试
     for(int i = 0; i < test_number; ++i) {
         const unsigned long Converter = 1000 * 1000;
         struct timeval val;
@@ -112,9 +111,11 @@ int main(int argc, char *argv[])
     avg_recall /= test_number;
     avg_latency /= test_number;
 
-    // 控制台常规打印
     std::cout << "average recall: " << avg_recall << "\n";
     std::cout << "average latency (us): " << avg_latency << "\n";
+
+    double query_time_ms = (avg_latency * test_number) / 1000.0;
+    double throughput_qps = (avg_latency > 0) ? (1000000.0 / avg_latency) : 0.0;
 
     std::string time_str = getCurrentTimeStr();
     std::string filename = "files/FlatScan_" + time_str + ".txt";
@@ -122,19 +123,23 @@ int main(int argc, char *argv[])
     std::ofstream outfile(filename);
     if (outfile.is_open()) {
         outfile << "--- FlatScan Serial Test Results ---\n";
-        outfile << "Algorithm Name : FlatScan\n";
-        outfile << "Test Time      : " << time_str << "\n";
-        outfile << "Total Queries  : " << test_number << "\n";
-        outfile << "K (Top-K)      : " << k << "\n";
+        outfile << "Algorithm Name       : FlatScan (Brute-force)\n";
+        outfile << "Test Time            : " << time_str << "\n";
+        outfile << "Available Threads    : 1 (Serial Baseline)\n";
+        outfile << "Total Queries        : " << test_number << "\n";
+        outfile << "K (Top-K)            : " << k << "\n";
         outfile << "--------------------------------\n";
-        outfile << "Average Recall : " << std::fixed << std::setprecision(4) << avg_recall << "\n";
-        outfile << "Avg Latency(us): " << std::fixed << std::setprecision(2) << avg_latency << "\n";
+        outfile << "Average Recall       : " << std::fixed << std::setprecision(4) << avg_recall << "\n";
+        outfile << "Avg Latency(us)      : " << std::fixed << std::setprecision(2) << avg_latency << "\n";
+        outfile << "Throughput (QPS)     : " << std::fixed << std::setprecision(2) << throughput_qps << "\n";
+        outfile << "--------------------------------\n";
+        outfile << "Query Time (ms)      : " << std::fixed << std::setprecision(2) << query_time_ms << "\n";
+        outfile << "Total Execution (ms) : " << std::fixed << std::setprecision(2) << query_time_ms << "\n";
         outfile.close();
         std::cerr << "\n[SUCCESS] Results successfully saved to: " << filename << std::endl;
     } else {
         std::cerr << "\n[ERROR] Failed to open " << filename << " for writing! Check if 'files/' folder exists." << std::endl;
     }
-
     // 释放动态内存
     delete[] test_query;
     delete[] test_gt;
