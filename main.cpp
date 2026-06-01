@@ -64,7 +64,6 @@ hnsw::HNSW* build_index(float* base, size_t base_number, size_t vecdim)
     return appr_alg;
 }
 
-// 获取当前系统时间的字符串函数
 std::string getCurrentTimeStr() {
     std::time_t now = std::time(nullptr);
     std::tm* ltm = std::localtime(&now);
@@ -88,16 +87,14 @@ int main() {
     auto test_gt = LoadData<uint32_t>(data_path + "DEEP100K.gt.query.100k.top100.bin", test_number, test_gt_d);
     auto base = LoadData<float>(data_path + "DEEP100K.base.100k.fbin", base_number, vecdim);
     
-    test_number = 200; // 截取前 200 个用于测试
+    test_number = 200; 
     const size_t k = 10;
     const int efSearch = 150; 
 
     std::cout << "\n=== Starting HNSW OpenMP Scaling Test ===\n";
 
-    // 设置需要采样的线程数列表
     std::vector<int> thread_configs = {1, 2, 4, 8};
 
-    // 提前创建并打开输出文件，记录所有的测试结果
     std::string time_str = getCurrentTimeStr();
     std::string filename = "files/HNSW_scaling_results" + time_str + ".txt"; 
     std::ofstream outfile(filename);
@@ -107,7 +104,6 @@ int main() {
         return -1;
     }
 
-    // 写入文件表头信息
     outfile << "--- HNSW Multi-thread Scaling Test Results ---\n";
     outfile << "Test Time            : " << time_str << "\n";
     outfile << "Total Queries        : " << test_number << "\n";
@@ -124,24 +120,19 @@ int main() {
             << "Recall\n";
     outfile << "---------------------------------------------------------------------------------\n";
 
-    // 开始遍历不同的线程数量配置
     for (int current_threads : thread_configs) {
-        
-        // 强制设定当前 OpenMP 使用的线程数
         omp_set_num_threads(current_threads);
         
         std::cout << "\n========================================\n";
         std::cout << "Testing with Threads: " << current_threads << "\n";
         std::cout << "========================================\n";
 
-        // 1. 构建图索引
         std::cout << "Start building HNSW index...\n";
         auto build_start_time = std::chrono::high_resolution_clock::now();
         hnsw::HNSW* index = build_index(base, base_number, vecdim);
         auto build_end_time = std::chrono::high_resolution_clock::now();
         double build_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(build_end_time - build_start_time).count();
 
-        // 2. 初始化查询用的 VisitedList 对象池
         std::vector<hnsw::VisitedList*> query_vl_pool(current_threads);
         for (int i = 0; i < current_threads; ++i) {
             query_vl_pool[i] = new hnsw::VisitedList(base_number);
@@ -149,7 +140,6 @@ int main() {
 
         std::vector<SearchResult> results(test_number);
 
-        // 3. 执行多线程并发查询
         std::cout << "Executing queries in parallel...\n";
         auto query_start_time = std::chrono::high_resolution_clock::now();
 
@@ -164,7 +154,6 @@ int main() {
 
             int64_t latency = std::chrono::duration_cast<std::chrono::microseconds>(q_end - q_start).count();
 
-            // 计算该条查询的 Recall
             std::set<uint32_t> gt_set;
             for (size_t j = 0; j < k; ++j) {
                 gt_set.insert(test_gt[i * test_gt_d + j]);
@@ -186,7 +175,6 @@ int main() {
         auto query_end_time = std::chrono::high_resolution_clock::now();
         double query_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(query_end_time - query_start_time).count();
         
-        // 4. 计算综合统计指标
         double query_time_seconds = query_time_ms / 1000.0;
         double throughput_qps = (query_time_seconds > 0) ? (double)test_number / query_time_seconds : 0.0;
 
@@ -199,14 +187,12 @@ int main() {
         avg_recall /= test_number;
         avg_latency /= test_number;
 
-        // 终端输出当前线程数的测试结果
         std::cout << "average recall: " << avg_recall << "\n";
         std::cout << "average latency (us): " << avg_latency << "\n";
         std::cout << "throughput (QPS): " << throughput_qps << "\n";
         std::cout << "Build Time (ms): " << build_time_ms << "\n";
         std::cout << "Query Time (ms): " << query_time_ms << "\n";
 
-        // 将当前结果作为一行记录追加到文件中
         outfile << std::left << std::setw(10) << current_threads
                 << std::setw(18) << std::fixed << std::setprecision(2) << build_time_ms
                 << std::setw(18) << std::fixed << std::setprecision(2) << query_time_ms
@@ -214,7 +200,6 @@ int main() {
                 << std::setw(18) << std::fixed << std::setprecision(2) << avg_latency
                 << std::fixed << std::setprecision(4) << avg_recall << "\n";
 
-        // 5. 释放当前线程数对应的图索引和查询池内存
         for (int i = 0; i < current_threads; ++i) {
             delete query_vl_pool[i];
         }
@@ -224,7 +209,6 @@ int main() {
     outfile.close();
     std::cerr << "\n[SUCCESS] All parallel scaling results successfully saved to: " << filename << std::endl;
 
-    // 释放基础数据占用的大块内存
     delete[] base;
     delete[] test_query;
     delete[] test_gt;
